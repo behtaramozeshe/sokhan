@@ -9,7 +9,8 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useMediaQuery } from "@mui/material";
-import { useFormContext } from "@/context/FormContext"; // Import FormContext
+import { useFormContext } from "@/context/FormContext";
+import { useAuth } from "@clerk/nextjs"; // Import Clerk's useAuth hook
 import Step1 from "./Step1/Step1";
 import Step2 from "./Step2/Step2";
 import Step3 from "./Step3/Step3";
@@ -55,7 +56,8 @@ const CustomStepIcon = (props: StepIconProps) => {
 export default function CopywritingStepper() {
   const [activeStep, setActiveStep] = useState(0);
   const isMobile = useMediaQuery("(max-width:600px)");
-  const { clearFormData } = useFormContext(); // Access clearFormData from context
+  const { clearFormData } = useFormContext();
+  const { isSignedIn } = useAuth(); // Get authentication status from Clerk
 
   const handleNext = () => {
     if (activeStep === steps.length - 1) {
@@ -100,7 +102,7 @@ export default function CopywritingStepper() {
         maxWidth: "800px",
         margin: "0 auto",
         display: "flex",
-        flexDirection: isMobile ? "row" : "column", // Row on mobile, column on desktop
+        flexDirection: isMobile ? "row" : "column",
         gap: 2,
       }}
     >
@@ -109,28 +111,27 @@ export default function CopywritingStepper() {
         activeStep={activeStep}
         orientation={isMobile ? "vertical" : "horizontal"}
         sx={{
-          width: isMobile ? "30%" : "100%", // 30% on mobile, full width on desktop
-          order: isMobile ? 1 : 0, // Right on mobile, top on desktop
+          width: isMobile ? "30%" : "100%",
+          order: isMobile ? 1 : 0,
           "& .MuiStepLabel-label": {
             color: "#FFA500",
           },
           "& .MuiStepLabel-root": {
             display: "flex",
-            flexDirection: isMobile ? "row" : "column", // Row on mobile, column on desktop
-            alignItems: "center", // Center on both
-            justifyContent: isMobile ? "flex-end" : "center", // Right on mobile, center on desktop
-            textAlign: isMobile ? "right" : "center", // Right-align text on mobile
-            gap: isMobile ? 1 : 0, // Space between icon and label on mobile
+            flexDirection: isMobile ? "row" : "column",
+            alignItems: "center",
+            justifyContent: isMobile ? "flex-end" : "center",
+            textAlign: isMobile ? "right" : "center",
+            gap: isMobile ? 1 : 0,
           },
           "& .MuiStepConnector-line": {
-            borderColor: "transparent", // Remove white line
+            borderColor: "transparent",
           },
-          // Desktop-specific adjustments
           ...(!isMobile && {
             display: "flex",
-            justifyContent: "space-between", // Spread steps evenly across the top
+            justifyContent: "space-between",
             alignItems: "center",
-            flexWrap: "wrap", // Wrap if too many steps
+            flexWrap: "wrap",
           }),
         }}
       >
@@ -144,9 +145,9 @@ export default function CopywritingStepper() {
       {/* Content */}
       <Box
         sx={{
-          width: isMobile ? "70%" : "100%", // 70% on mobile, full width on desktop
-          order: isMobile ? 0 : 1, // Left on mobile, below on desktop
-          mt: isMobile ? 0 : 2, // No margin-top on mobile, margin on desktop
+          width: isMobile ? "70%" : "100%",
+          order: isMobile ? 0 : 1,
+          mt: isMobile ? 0 : 2,
         }}
       >
         {activeStep === steps.length ? (
@@ -174,17 +175,21 @@ export default function CopywritingStepper() {
               >
                 بازگشت
               </Button>
-              <Button
-                variant="contained"
-                onClick={handleNext}
-                sx={{
-                  backgroundColor: "#FFA500",
-                  color: "#000000",
-                  "&:hover": { backgroundColor: "#e59400" },
-                }}
-              >
-                {activeStep === steps.length - 1 ? "شروع مجدد" : "بعدی"}
-              </Button>
+
+              {/* Conditionally render Next button based on isSignedIn */}
+              {isSignedIn && (
+                <Button
+                  variant="contained"
+                  onClick={handleNext}
+                  sx={{
+                    backgroundColor: "#FFA500",
+                    color: "#000000",
+                    "&:hover": { backgroundColor: "#e59400" },
+                  }}
+                >
+                  {activeStep === steps.length - 1 ? "شروع مجدد" : "بعدی"}
+                </Button>
+              )}
             </Box>
           </>
         )}
