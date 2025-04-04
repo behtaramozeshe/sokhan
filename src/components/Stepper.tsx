@@ -7,10 +7,10 @@ import {
   Box,
   StepIconProps,
 } from "@mui/material";
-import { useState } from "react";
+import { useState, forwardRef } from "react";
 import { useMediaQuery } from "@mui/material";
 import { useFormContext } from "@/context/FormContext";
-import { useAuth } from "@clerk/nextjs"; // Import Clerk's useAuth hook
+import { useAuth } from "@clerk/nextjs";
 import Step1 from "./Step1/Step1";
 import Step2 from "./Step2/Step2";
 import Step3 from "./Step3/Step3";
@@ -20,6 +20,7 @@ import Step6 from "./Step6/Step6";
 import Step7 from "./Step7/Step7";
 import Step8 from "./Step8/Step8";
 
+// Define steps
 const steps = [
   "اطلاعات اولیه",
   "پرسونای مشتری",
@@ -31,7 +32,7 @@ const steps = [
   "تولید کپی",
 ];
 
-// Custom StepIcon for orange color
+// Custom StepIcon
 const CustomStepIcon = (props: StepIconProps) => {
   const { active, completed } = props;
   return (
@@ -53,15 +54,17 @@ const CustomStepIcon = (props: StepIconProps) => {
   );
 };
 
-export default function CopywritingStepper() {
+// Define props type including ref
+
+// Use forwardRef with proper typing
+const CopywritingStepper = forwardRef<HTMLDivElement>((props, ref) => {
   const [activeStep, setActiveStep] = useState(0);
   const isMobile = useMediaQuery("(max-width:600px)");
   const { clearFormData } = useFormContext();
-  const { isSignedIn } = useAuth(); // Get authentication status from Clerk
+  const { isSignedIn } = useAuth();
 
   const handleNext = () => {
     if (activeStep === steps.length - 1) {
-      // On last step, clear form data and reset to step 0
       clearFormData();
       setActiveStep(0);
     } else {
@@ -96,6 +99,7 @@ export default function CopywritingStepper() {
 
   return (
     <Box
+      ref={ref} // Attach ref to the root Box
       sx={{
         padding: 2,
         width: "100%",
@@ -106,16 +110,13 @@ export default function CopywritingStepper() {
         gap: 2,
       }}
     >
-      {/* Stepper */}
       <Stepper
         activeStep={activeStep}
         orientation={isMobile ? "vertical" : "horizontal"}
         sx={{
           width: isMobile ? "30%" : "100%",
           order: isMobile ? 1 : 0,
-          "& .MuiStepLabel-label": {
-            color: "#FFA500",
-          },
+          "& .MuiStepLabel-label": { color: "#FFA500" },
           "& .MuiStepLabel-root": {
             display: "flex",
             flexDirection: isMobile ? "row" : "column",
@@ -124,9 +125,7 @@ export default function CopywritingStepper() {
             textAlign: isMobile ? "right" : "center",
             gap: isMobile ? 1 : 0,
           },
-          "& .MuiStepConnector-line": {
-            borderColor: "transparent",
-          },
+          "& .MuiStepConnector-line": { borderColor: "transparent" },
           ...(!isMobile && {
             display: "flex",
             justifyContent: "space-between",
@@ -142,7 +141,6 @@ export default function CopywritingStepper() {
         ))}
       </Stepper>
 
-      {/* Content */}
       <Box
         sx={{
           width: isMobile ? "70%" : "100%",
@@ -175,8 +173,6 @@ export default function CopywritingStepper() {
               >
                 بازگشت
               </Button>
-
-              {/* Conditionally render Next button based on isSignedIn */}
               {isSignedIn && (
                 <Button
                   variant="contained"
@@ -196,4 +192,8 @@ export default function CopywritingStepper() {
       </Box>
     </Box>
   );
-}
+});
+
+CopywritingStepper.displayName = "CopywritingStepper";
+
+export default CopywritingStepper;
